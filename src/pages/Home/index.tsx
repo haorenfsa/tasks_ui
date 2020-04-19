@@ -6,25 +6,20 @@ import {
   Row,
   Col,
   Select,
-  Divider,
   Icon,
-  DatePicker,
-  Tag,
 } from "antd";
-import moment from "moment";
-import { TaskStatus, ViewTask, GetEnumKeys, TaskPlan } from "../../models/tasks";
+import { TaskStatus, ViewTask, GetEnumKeys } from "../../models/tasks";
 
 import {AddTask, QueryAllTask, UpdateTask, DeleteTask} from '../../api/tasks'
 import { Pagination } from "../../models/page";
+
+import PlanPicker from '../../components/PlanPicker'
 
 interface HomeState {
   currentView: string
   tasks: ViewTask[];
   pg: Pagination
 }
-
-const views = ["all", "none"]
-const planViews = ["month", "week", "day"]
 
 interface HomeProps {}
 
@@ -79,11 +74,11 @@ class Home extends React.Component<HomeProps, HomeState> {
       }
     },
     {
-      width: 100,
+      width: 200,
       title: "Status",
       key: "status",
       render: (record: ViewTask) => (
-        <Select value={record.status} onChange={this.updateTaskStatus(record)}>
+        <Select style={{ width: 150 }} value={record.status} onChange={this.updateTaskStatus(record)}>
           {GetEnumKeys(TaskStatus).map((name: any) => (
             <Select.Option key={`status-${name}`} value={TaskStatus[name]}>{name}</Select.Option>
           ))}
@@ -96,23 +91,9 @@ class Home extends React.Component<HomeProps, HomeState> {
       key: "plan",
       render: (record: ViewTask) => (
         <div>
-          <DatePicker/>
+          <PlanPicker value={record.plan.moment} onChangePicker={this.handleChangePlanDate(record)} defaultPickerLevel={record.plan.level}/>
         </div>
       )
-    },
-    {
-      width: 200,
-      title: "Due Time",
-      key: "due_time",
-      dataIndex: "due_time",
-      render: (time: Date) => <DatePicker defaultValue={moment(time)} />
-    },
-    {
-      width: 100,
-      title: "Project",
-      key: "project",
-      dataIndex: "project",
-      render: (plan: string) => <Tag color="cyan">{plan}</Tag>
     },
     {
       width: 100,
@@ -129,8 +110,7 @@ class Home extends React.Component<HomeProps, HomeState> {
   }
 
   queryAllTask = () => {
-    let { pg } = this.state
-    QueryAllTask(pg, (ret: ViewTask[] | false) => {
+    QueryAllTask((ret: ViewTask[] | false) => {
       if (ret) {
         this.setState({
           tasks: ret
@@ -142,12 +122,16 @@ class Home extends React.Component<HomeProps, HomeState> {
   updateTaskStatus = (task: ViewTask) => {
     return (newStatus: TaskStatus) => {
       task.status = newStatus
-      UpdateTask(task.name, task, (success:boolean) => {
-        if (success) {
-          this.setStateUpdateTask(task.name, task)
-        }
-      })
+      this.updateTask(task)
     }
+  }
+
+  updateTask = (task: ViewTask) => {
+    UpdateTask(task.name, task, (success:boolean) => {
+      if (success) {
+        this.setStateUpdateTask(task.name, task)
+      }
+    })
   }
 
   setStateUpdateTask(name: string, task: ViewTask) {
@@ -157,6 +141,11 @@ class Home extends React.Component<HomeProps, HomeState> {
     this.setState({
       tasks
     })
+  }
+
+  handleChangePlanDate = (task: ViewTask) => (moment: any, level: string) => {
+    task.plan = {moment: moment, level: level}
+    this.updateTask(task)
   }
 
   handleStartEditingTaskName = (task: ViewTask) => () => {
@@ -189,12 +178,10 @@ class Home extends React.Component<HomeProps, HomeState> {
     })
   };
 
-  handleAddTask = (task: ViewTask) => () => {
-    AddTask(task, (ok: boolean) => {
+  handleAddTask = (name: string) => () => {
+    AddTask(name, (ok: boolean) => {
       if (ok) {
-        let { tasks } = this.state
-        tasks = [task, ...tasks]
-        this.setState({tasks})
+        this.queryAllTask()
       }
     })
   };
@@ -202,17 +189,8 @@ class Home extends React.Component<HomeProps, HomeState> {
   handleAddNewTask = () => {
     let tomorrow = new Date();
     tomorrow.setDate(new Date().getDate() + 1);
-    const newTask = {
-      name: `{new task}`,
-      status: TaskStatus.TODO,
-      plan: {} as TaskPlan,
-      due_time: tomorrow,
-      project: "",
-      editing: true,
-    };
-
     this.setState({
-    }, this.handleAddTask(newTask));
+    }, this.handleAddTask("New Task"));
   };
 
   handleDeleteTask = (name: string) => () => {
@@ -230,38 +208,6 @@ class Home extends React.Component<HomeProps, HomeState> {
     let { tasks } = this.state
     return (
       <Fragment>
-        <Row>
-          <Col span={4}>
-            {"Plan: "}
-            <Select defaultValue="all" style={{ width: 90 }}>
-              <Select.Option key="all">all</Select.Option>
-              <Select.Option key="none">none</Select.Option>
-              <Select.Option key="day">day</Select.Option>
-              <Select.Option key="wk">week</Select.Option>
-              <Select.Option key="mon">month</Select.Option>
-            </Select>
-          </Col>
-          <Col span={6}>
-            {"Date: "}
-            <DatePicker />{" "}
-            <Button shape="circle">
-              <Icon type="left" />
-            </Button>
-            <Button shape="circle">
-              <Icon type="right" />
-            </Button>
-          </Col>
-          <Col span={1} />
-          <Col span={4}>
-            <Input.Search />
-          </Col>
-        </Row>
-        <Row>
-          <Divider
-            orientation="left"
-            style={{ color: "#333", fontWeight: "normal" }}
-          />
-        </Row>
         <Row gutter={[16, 16]}>
           <Col span={4}>
             <Button

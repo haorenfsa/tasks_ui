@@ -24,7 +24,7 @@ export async function axiosGet(
   return ret
 }
 
-export async function axiosPost(
+export async function axiosPut(
   url: string,
   data: any,
   msg?: string,
@@ -41,7 +41,7 @@ export async function axiosPost(
   let config = {
     validateStatus: validateStatus
   }
-  const ret = await axios.post(`${url}`, data, config)
+  const ret = await axios.put(`${url}`, data, config)
     .then((res: AxiosResponse) => {
       if (loadDone) {
         loadDone()

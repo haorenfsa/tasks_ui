@@ -1,6 +1,8 @@
+import moment from "moment";
+
 // common
 export enum TaskStatus {
-  TODO = 0,
+  TODO,
   Doing,
   Done,
   Pending,
@@ -22,7 +24,6 @@ export interface Task {
   name: string;
   status: TaskStatus;
   plan: TaskPlan
-  due_time: string;
   project: string;
 }
 
@@ -33,12 +34,16 @@ export interface TaskPlan {
   day: number
 }
 
+export interface TaskPlanView {
+  moment: moment.Moment | null
+  level: string
+}
+
 // view
 export interface ViewTask {
   name: string;
-  plan: TaskPlan
+  plan: TaskPlanView
   status: TaskStatus;
-  due_time: Date;
   project: string;
   editing?: boolean;
   editingName?: string;
