@@ -2,8 +2,6 @@ import React from 'react';
 import Home from './pages/Home'
 import './App.css';
 
-import DragTable from './components/DragableTable'
-
 import { Router, Route, Switch } from 'react-router';
 import { createBrowserHistory } from 'history'
 import { Layout, Menu, Icon } from 'antd';
