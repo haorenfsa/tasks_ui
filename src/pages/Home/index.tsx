@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import {
-  Table,
   Input,
   Button,
   Row,
@@ -10,10 +9,11 @@ import {
 } from "antd";
 import { TaskStatus, ViewTask, GetEnumKeys } from "../../models/tasks";
 
-import {AddTask, QueryAllTask, UpdateTask, DeleteTask} from '../../api/tasks'
+import {AddTask, QueryAllTask, UpdateTask, DeleteTask, ChangePosition} from '../../api/tasks'
 import { Pagination } from "../../models/page";
 
 import PlanPicker from '../../components/PlanPicker'
+import DragTable from "../../components/DragableTable";
 
 interface HomeState {
   currentView: string
@@ -100,7 +100,7 @@ class Home extends React.Component<HomeProps, HomeState> {
       title: "Action",
       key: "action",
       render: (record: ViewTask) => {
-        return (<Button type="danger" onClick={this.handleDeleteTask(record.name)}>delete</Button>)
+        return (<Button type="danger" onClick={this.handleDeleteTask(record.id)}>delete</Button>)
       }
     }
   ];
@@ -127,16 +127,16 @@ class Home extends React.Component<HomeProps, HomeState> {
   }
 
   updateTask = (task: ViewTask) => {
-    UpdateTask(task.name, task, (success:boolean) => {
+    UpdateTask(task, (success:boolean) => {
       if (success) {
-        this.setStateUpdateTask(task.name, task)
+        this.setStateUpdateTask(task)
       }
     })
   }
 
-  setStateUpdateTask(name: string, task: ViewTask) {
+  setStateUpdateTask(task: ViewTask) {
     let { tasks } = this.state
-    let i = tasks.findIndex((old: ViewTask) => name === old.name)
+    let i = tasks.findIndex((old: ViewTask) => task.id === old.id)
     tasks[i] = task
     this.setState({
       tasks
@@ -151,12 +151,12 @@ class Home extends React.Component<HomeProps, HomeState> {
   handleStartEditingTaskName = (task: ViewTask) => () => {
     task.editing = true
     task.editingName = task.name
-    this.setStateUpdateTask(task.name, task)
+    this.setStateUpdateTask(task)
   }
 
   handleEditingTaskName = (task: ViewTask) => (e: any) => {
     task.editingName = e.target.value
-    this.setStateUpdateTask(task.name, task)
+    this.setStateUpdateTask(task)
   }
 
   handleUpdateTaskName = (task: ViewTask) => () => {
@@ -168,18 +168,18 @@ class Home extends React.Component<HomeProps, HomeState> {
     task.editingName = undefined
     task.editing = false
     if (task.name === oldName) {
-      this.setStateUpdateTask(oldName, task)
+      this.setStateUpdateTask(task)
       return
     }
-    UpdateTask(oldName, task, (ok: boolean) => {
+    UpdateTask(task, (ok: boolean) => {
       if (ok) {
-        this.setStateUpdateTask(oldName, task)
+        this.setStateUpdateTask(task)
       }
     })
   };
 
   handleAddTask = (name: string) => () => {
-    AddTask(name, (ok: boolean) => {
+    AddTask({name: name} as ViewTask, (ok: ViewTask | false) => {
       if (ok) {
         this.queryAllTask()
       }
@@ -193,15 +193,24 @@ class Home extends React.Component<HomeProps, HomeState> {
     }, this.handleAddTask("New Task"));
   };
 
-  handleDeleteTask = (name: string) => () => {
-    DeleteTask(name, (success: boolean) => {
+  handleDeleteTask = (id: number) => () => {
+    DeleteTask(id, (success: boolean) => {
       if (success) {
         let tasks = this.state.tasks.filter((one: ViewTask) => {
-          return one.name !== name
+          return one.id !== id
         })
         this.setState({ tasks })
       }
     })
+  }
+
+  onMoveRow = async (index: number, newIndex: number) => {
+    const targetPosition = this.state.tasks.length - newIndex
+    let ret = false
+    await ChangePosition(this.state.tasks[index].id, targetPosition, (success: boolean) => {
+      ret = success
+    })
+    return ret
   }
 
   render() {
@@ -221,11 +230,12 @@ class Home extends React.Component<HomeProps, HomeState> {
           </Col>
         </Row>
         <Row gutter={[16, 16]}>
-          <Table
-            rowKey="name"
+          <DragTable
+            onMoveRow={this.onMoveRow}
+            rowKey="id"
             rowSelection={this.rowSelection}
             columns={this.columns}
-            dataSource={tasks}
+            data={tasks}
           />
         </Row>
        

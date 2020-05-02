@@ -21,6 +21,7 @@ export function GetEnumKeys(enumType: Object): string[] {
 
 // common
 export interface Task {
+  id: number;
   name: string;
   status: TaskStatus;
   plan: TaskPlan
@@ -41,6 +42,7 @@ export interface TaskPlanView {
 
 // view
 export interface ViewTask {
+  id: number;
   name: string;
   plan: TaskPlanView
   status: TaskStatus;

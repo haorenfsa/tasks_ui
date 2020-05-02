@@ -2,6 +2,8 @@ import React from 'react';
 import Home from './pages/Home'
 import './App.css';
 
+import DragTable from './components/DragableTable'
+
 import { Router, Route, Switch } from 'react-router';
 import { createBrowserHistory } from 'history'
 import { Layout, Menu, Icon } from 'antd';
@@ -24,6 +26,12 @@ const menudatas: MenuData[] = [
     icon: "dashboard",
     component: Home,
   },
+  {
+    path: "/component",
+    name: "component",
+    icon: "component",
+    component: DragTable,
+  }
 ]
 
 class App extends React.Component {

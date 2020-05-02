@@ -8,6 +8,7 @@ export function dateToString(date: Date): string {
 
 export function viewTaskToTask(task: ViewTask): Task {
   let ret = {
+    id: task.id,
     name: task.name,
     plan: taskPlanFromView(task.plan),
     status: task.status,
@@ -18,6 +19,7 @@ export function viewTaskToTask(task: ViewTask): Task {
 
 export function taskToViewTask(task: Task): ViewTask {
   let ret = {
+    id: task.id,
     name: task.name,
     plan: taskPlanToView(task.plan),
     status: task.status,

@@ -1,11 +1,15 @@
 import { Task, ViewTask } from '../models/tasks'
-import { axiosPut, axiosGet, axiosPatch, axiosDelete } from './axios'
+import { axiosPost, axiosPut, axiosGet, axiosPatch, axiosDelete } from './axios'
 import { taskToViewTask, viewTaskToTask } from './convert'
 
 const API_PREFIX = "/api/v1"
 
-export async function AddTask(name: string, fn: (success: boolean)=>(void)) {
-  let res = await axiosPut(`${API_PREFIX}/tasks/${name}`, {})
+export async function AddTask(task: ViewTask, fn: (ret: ViewTask| false)=>(void)) {
+  let res = await axiosPost(`${API_PREFIX}/tasks`, task, true)
+  if (res) {
+    let ret = taskToViewTask(res)
+    fn(ret)
+  }
   fn(res)
 }
 
@@ -18,13 +22,18 @@ export async function QueryAllTask(fn: (data: ViewTask[]|false) => (void)) {
   fn(ret)
 }
 
-export async function UpdateTask(name: string, task: ViewTask, fn: (success: boolean)=>(void)) {
+export async function UpdateTask(task: ViewTask, fn: (success: boolean)=>(void)) {
   let data = viewTaskToTask(task)
-  let res = await axiosPatch(`${API_PREFIX}/tasks/${name}`, data)
+  let res = await axiosPatch(`${API_PREFIX}/tasks`, data)
   fn(res)
 }
 
-export async function DeleteTask(name: string, fn: (success: boolean)=>(void)) {
-  let res = await axiosDelete(`${API_PREFIX}/tasks/${name}`)
+export async function DeleteTask(id: number, fn: (success: boolean)=>(void)) {
+  let res = await axiosDelete(`${API_PREFIX}/tasks/${id}`)
+  fn(res)
+}
+
+export async function ChangePosition(id: number, position: number, fn: (success: boolean)=>(void)) {
+  let res = await axiosPut(`${API_PREFIX}/tasks/${id}/position/${position}`, {})
   fn(res)
 }
