@@ -25,12 +25,6 @@ const menudatas: MenuData[] = [
     name: "Dashboard",
     icon: "dashboard",
     component: Home,
-  },
-  {
-    path: "/component",
-    name: "component",
-    icon: "component",
-    component: DragTable,
   }
 ]
 
