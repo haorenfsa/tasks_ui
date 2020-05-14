@@ -7,7 +7,6 @@ import { TableProps } from "antd/lib/table";
 import './DragableTable.css'
 
 let dragingIndex = -1;
-
 class BodyRow extends React.Component<any, any> {
   render() {
     const {
@@ -120,6 +119,7 @@ class DragTable extends React.Component<DragTableProps, DragTableState> {
     return (
       <DndProvider backend={HTML5Backend}>
         <Table
+          pagination={false}
           dataSource={this.state.data}
           components={this.components}
           onRow={(record, index) => ({
