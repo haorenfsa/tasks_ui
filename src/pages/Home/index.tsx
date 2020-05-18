@@ -249,7 +249,7 @@ class Home extends React.Component<HomeProps, HomeState> {
         }
         return false;
       });
-    }
+    };
   }
 
   render() {
@@ -258,45 +258,56 @@ class Home extends React.Component<HomeProps, HomeState> {
     return (
       <Fragment>
         <Row>
-          Status:{" "}
-          <Radio.Group defaultValue="2">
-            <Radio.Button value="1"
-              onClick={() => this.setState({ filter: this.allFilter })}
-            >
-              All
-            </Radio.Button>
-            <Radio.Button value="2"
-              onClick={() =>
-                this.setState({ filter: this.filterGetter([TaskStatus.TODO]) })
-              }
-            >
-              TODO
-            </Radio.Button>
-            <Radio.Button value="3"
-              onClick={() =>
-                this.setState({
-                  filter: this.filterGetter([
-                    TaskStatus.Doing,
-                    TaskStatus.Pending,
-                  ]),
-                })
-              }
-            >
-              Doing/Pending
-            </Radio.Button>
-            <Radio.Button value="4"
-              onClick={() =>
-                this.setState({
-                  filter: this.filterGetter([
-                    TaskStatus.Done,
-                    TaskStatus.Closed,
-                  ]),
-                })
-              }
-            >
-              Done/Closed
-            </Radio.Button>
-          </Radio.Group>
+          <Col span={16}>
+            Status:{" "}
+            <Radio.Group defaultValue="2">
+              <Radio.Button
+                value="1"
+                onClick={() => this.setState({ filter: this.allFilter })}
+              >
+                All
+              </Radio.Button>
+              <Radio.Button
+                value="2"
+                onClick={() =>
+                  this.setState({
+                    filter: this.filterGetter([TaskStatus.TODO]),
+                  })
+                }
+              >
+                TODO
+              </Radio.Button>
+              <Radio.Button
+                value="3"
+                onClick={() =>
+                  this.setState({
+                    filter: this.filterGetter([
+                      TaskStatus.Doing,
+                      TaskStatus.Pending,
+                    ]),
+                  })
+                }
+              >
+                Doing/Pending
+              </Radio.Button>
+              <Radio.Button
+                value="4"
+                onClick={() =>
+                  this.setState({
+                    filter: this.filterGetter([
+                      TaskStatus.Done,
+                      TaskStatus.Closed,
+                    ]),
+                  })
+                }
+              >
+                Done/Closed
+              </Radio.Button>
+            </Radio.Group>
+          </Col>
+          <Col span={8}>
+
+          </Col>
         </Row>
         <Row gutter={[16, 16]}>
           <Col span={4}>
